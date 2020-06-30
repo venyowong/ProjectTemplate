@@ -52,6 +52,9 @@ namespace ProjectTemplate
         public static IAsyncPolicy<HttpResponseMessage> GetHttpTimeoutPolicy(TimeSpan timeSpan) => 
             Policy.TimeoutAsync<HttpResponseMessage>(timeSpan);
 
+        public static IAsyncPolicy<HttpResponseMessage> GetHttpPolicy(TimeSpan timeout) =>
+            Policy.WrapAsync(HttpFallBackPolicy, HttpRetryPolicy, HttpCircuitBreakerPolicy, GetHttpTimeoutPolicy(timeout));
+
         public static IAsyncPolicy<T> GetDbRetryPolicy<T>() => 
             Policy<T>.Handle<DbException>()
                 .Or<TimeoutRejectedException>()

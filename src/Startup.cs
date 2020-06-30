@@ -39,20 +39,7 @@ namespace ProjectTemplate
             this.AddRateLimit(services);
             services.Configure<Configuration>(this.Configuration);
 
-            services.AddHttpClient("Default", client =>
-                {
-                    client.Timeout = new TimeSpan(0, 0, 30);
-                })
-                .AddPolicyHandler(PollyPolicies.HttpFallBackPolicy)
-                .AddPolicyHandler(PollyPolicies.HttpRetryPolicy)
-                .AddPolicyHandler(PollyPolicies.HttpCircuitBreakerPolicy)
-                .AddPolicyHandler(PollyPolicies.GetHttpTimeoutPolicy(new TimeSpan(0, 0, 30)));
-
-            services.AddHttpClient<GitHubService>()
-                .AddPolicyHandler(PollyPolicies.HttpFallBackPolicy)
-                .AddPolicyHandler(PollyPolicies.HttpRetryPolicy)
-                .AddPolicyHandler(PollyPolicies.HttpCircuitBreakerPolicy)
-                .AddPolicyHandler(PollyPolicies.GetHttpTimeoutPolicy(new TimeSpan(0, 1, 0)));
+            services.AddHttpClient<GitHubService>();
             
             services.AddSingleton<DbConnectionFactory>();
             services.AddSingleton<ConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(this.Configuration["Redis:ConnectionString"]));

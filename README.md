@@ -50,13 +50,9 @@ Serilog 日志组件目前仅输出到 Console 和本地文件，若需要接入
 Polly
 -----
 
-Polly 与 HttpClient 的结合参考 StartUp.ConfigureServices，进一步了解可访问[wiki](https://github.com/App-vNext/Polly/wiki/Polly-and-HttpClientFactory)
+使用 Polly 的时候，无论是 http、数据库、redis，都需要保证 Policy 的粒度足够小，确保一个 Policy 只能干预到一个操作
 
-Http 接口尽量使用 GithubService 的方式，保证不同域名的访问情况不会相互影响
-
-数据库访问时使用 Polly 应该尽量做到一条 sql 对应一个 Policy，避免 sql 之间相互影响，比如有两条 sql 对应同一个 Policy，其中一条 sql 存在某种错误，此时会影响到另外一条正确的 sql 执行失败
-
-注：使用 Polly 的时候，无论是 http、数据库、redis，都需要保证 Policy 的粒度足够小，确保一个 Policy 只能干预到一个操作
+http 参照 GithubService，数据库参照 DbConnectionExtension，redis 参照 RedisDbExtension
 
 以此为模板创建项目
 ----------------

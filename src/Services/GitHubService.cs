@@ -1,12 +1,16 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Polly;
 
 namespace ProjectTemplate.Services
 {
     public class GitHubService
     {
+        private static ConcurrentDictionary<string, IAsyncPolicy<HttpResponseMessage>> _dictionary = 
+            new ConcurrentDictionary<string, IAsyncPolicy<HttpResponseMessage>>();
         public HttpClient Client { get; }
 
         public GitHubService(HttpClient client)
@@ -24,7 +28,7 @@ namespace ProjectTemplate.Services
 
         public async Task<Dictionary<string, string>> GetEmojis()
         {
-            var response = await Client.GetAsync("/emojis");
+            var response = await this.GetWithPolly("/emojiss");
             if (!response.IsSuccessStatusCode)
             {
                 return null;
@@ -33,6 +37,22 @@ namespace ProjectTemplate.Services
             var result = await response.Content
                 .ReadAsAsync<Dictionary<string, string>>();
             return result;
+        }
+
+        private Task<HttpResponseMessage> GetWithPolly(string requestUri)
+        {
+            IAsyncPolicy<HttpResponseMessage> policy = null;
+            if (_dictionary.ContainsKey(requestUri))
+            {
+                policy = _dictionary[requestUri];
+            }
+            else
+            {
+                policy = PollyPolicies.GetHttpPolicy(new TimeSpan(0, 1, 0));
+                _dictionary.TryAdd(requestUri, policy);
+            }
+
+            return policy.ExecuteAsync(async () => await this.Client.GetAsync(requestUri));
         }
     }
 }
