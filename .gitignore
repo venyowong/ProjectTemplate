@@ -186,3 +186,4 @@ UpgradeLog*.htm
 FakesAssemblies/
 
 src/log/*.txt
+src/ProjectTemplate.xml

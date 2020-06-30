@@ -21,7 +21,8 @@
                 ".vscode/**",
                 "bin/**",
                 "log/**",
-                "obj/**"
+                "obj/**",
+                "ProjectTemplate.xml"
             ]
         }
     ]

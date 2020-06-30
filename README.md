@@ -30,11 +30,6 @@ AspNetCoreRateLimit
 
 流量限制只需修改 appsettings.json 中的配置即可，若需要进一步了解可访问[wiki](https://github.com/stefanprodan/AspNetCoreRateLimit/wiki)
 
-Polly
------
-
-目前 Polly 主要应用于 HttpClient，可在 StartUp.ConfigureServices 修改配置，进一步了解可访问[wiki](https://github.com/App-vNext/Polly/wiki/Polly-and-HttpClientFactory)
-
 StackExchange.Redis
 -------------------
 
@@ -51,6 +46,17 @@ Serilog 日志组件目前仅输出到 Console 和本地文件，若需要接入
 ---------
 
 本项目使用了一个工厂类 DbConnectionFactory 来同时支持多种数据库，并且每种数据库还支持多个连接。工厂类中根据 $"{clientType}:ConnectionStrings:{connectionName}" 此规则从配置中获取连接字符串，详细可参照代码与配置。若需要增加对其他数据库的支持，可参照工厂类代码，编写对应逻辑即可
+
+Polly
+-----
+
+Polly 与 HttpClient 的结合参考 StartUp.ConfigureServices，进一步了解可访问[wiki](https://github.com/App-vNext/Polly/wiki/Polly-and-HttpClientFactory)
+
+Http 接口尽量使用 GithubService 的方式，保证不同域名的访问情况不会相互影响
+
+数据库访问时使用 Polly 应该尽量做到一条 sql 对应一个 Policy，避免 sql 之间相互影响，比如有两条 sql 对应同一个 Policy，其中一条 sql 存在某种错误，此时会影响到另外一条正确的 sql 执行失败
+
+注：使用 Polly 的时候，无论是 http、数据库、redis，都需要保证 Policy 的粒度足够小，确保一个 Policy 只能干预到一个操作
 
 以此为模板创建项目
 ----------------

@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
+using Polly;
 using Serilog;
 
 namespace ProjectTemplate.Factories
@@ -9,6 +10,10 @@ namespace ProjectTemplate.Factories
     public class DbConnectionFactory
     {
         private IConfiguration config;
+
+        private IAsyncPolicy<MySqlConnection> mySqlConnectionPolicy = PollyPolicies.GetDbConnectionPolicy<MySqlConnection>();
+
+        private IAsyncPolicy<SqlConnection> sqlConnectionPolicy = PollyPolicies.GetDbConnectionPolicy<SqlConnection>();
 
         public DbConnectionFactory(IConfiguration config)
         {
@@ -39,8 +44,7 @@ namespace ProjectTemplate.Factories
 
         public IDbConnection CreateMySqlConnection(string connectionString)
         {
-            var connectionPolicy = PollyPolicies.GetDbConnectionPolicy<MySqlConnection>();
-            return connectionPolicy.ExecuteAsync(async () =>
+            return this.mySqlConnectionPolicy.ExecuteAsync(async () =>
             {
                 var conn = new MySqlConnection(connectionString);
                 if (conn.State != ConnectionState.Open)
@@ -53,8 +57,7 @@ namespace ProjectTemplate.Factories
 
         public IDbConnection CreateSqlServerConnection(string connectionString)
         {
-            var connectionPolicy = PollyPolicies.GetDbConnectionPolicy<SqlConnection>();
-            return connectionPolicy.ExecuteAsync(async () =>
+            return this.sqlConnectionPolicy.ExecuteAsync(async () =>
             {
                 var conn = new SqlConnection(connectionString);
                 if (conn.State != ConnectionState.Open)

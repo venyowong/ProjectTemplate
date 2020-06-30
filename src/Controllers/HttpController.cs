@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using ProjectTemplate.Extensions;
 using ProjectTemplate.Factories;
 using ProjectTemplate.Models;
 using ProjectTemplate.Services;
@@ -37,19 +38,16 @@ namespace ProjectTemplate.Controllers
         {
             Log.Information("/Http/Get");
             Log.Information(Guid.NewGuid().ToString());
-            return await PollyPolicies.GetDbCommandPolicy<IEnumerable<Feed>>().ExecuteAsync(async () =>
+            var dbConnection = this.dbConnectionFactory.CreateDbConnection("MySql", "resader");
+            if (dbConnection == null)
             {
-                var dbConnection = this.dbConnectionFactory.CreateDbConnection("MySql", "resader");
-                if (dbConnection == null)
-                {
-                    return null;
-                }
+                return null;
+            }
 
-                using (dbConnection)
-                {
-                    return await dbConnection.QueryAsync<Feed>("SELECT * FROM resader.feed;");
-                }
-            });
+            using (dbConnection)
+            {
+                return await dbConnection.QueryWithPolly<Feed>("query resader.feed", "SELECT * FROM resader.feed limit 1;");
+            }
         }
 
         [HttpGet("Github/Emojis")]
@@ -59,16 +57,16 @@ namespace ProjectTemplate.Controllers
         }
 
         [HttpGet("redis")]
-        public object GetRedisRandomValue()
+        public async Task<object> GetRedisRandomValue()
         {
             var key = Guid.NewGuid().ToString();
             var value = Guid.NewGuid().ToString();
-            this.database.StringSet(key, value);
-            return this.database.StringGet(key).ToString();
+            await this.database.StringSetWithPolly(key, value);
+            return await this.database.StringGetWithPolly(key);
         }
 
         [HttpGet("sqlserver")]
-        public object QuerySqlServer()
+        public async Task<object> QuerySqlServer()
         {
             var dbConnection = this.dbConnectionFactory.CreateDbConnection("SqlServer", "resader");
             if (dbConnection == null)
@@ -78,7 +76,7 @@ namespace ProjectTemplate.Controllers
 
             using (dbConnection)
             {
-                return dbConnection.Query("SELECT TOP 1 * FROM [master].[dbo].[OrleansQuery]");
+                return await dbConnection.QueryWithPolly<dynamic>("query [master].[dbo].[OrleansQuery]", "SELECT TOP 1 * FROM [master].[dbo].[OrleansQuery]");
             }
         }
     }

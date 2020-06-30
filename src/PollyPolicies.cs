@@ -7,6 +7,7 @@ using Polly;
 using Polly.Extensions.Http;
 using Polly.Timeout;
 using Serilog;
+using StackExchange.Redis;
 
 namespace ProjectTemplate
 {
@@ -84,5 +85,26 @@ namespace ProjectTemplate
 
         public static IAsyncPolicy<T> GetDbCommandPolicy<T>() =>
             Policy.WrapAsync(GetFallBackPolicy<T>(), GetDbCircuitBreakerPolicy<T>(), GetTimeoutPolicy<T>(new TimeSpan(0, 1, 0)));
+
+        public static IAsyncPolicy<T> GetRedisCircuitBreakerPolicy<T>() => 
+            Policy<T>.Handle<RedisException>()
+                .Or<RedisConnectionException>()
+                .Or<RedisCommandException>()
+                .Or<RedisServerException>()
+                .Or<RedisTimeoutException>()
+                .Or<TimeoutRejectedException>()
+                .CircuitBreakerAsync(3, new TimeSpan(0, 0, 30), (d, ts) =>
+                {
+                    Log.Warning($"Open Redis Circuit Breaker：{ts.TotalMilliseconds}");
+                }, () =>
+                {
+                    Log.Warning("Closed Redis Circuit Breaker");
+                }, () =>
+                {
+                    Log.Warning("HalfOpen Redis Circuit Breaker");
+                });
+
+        public static IAsyncPolicy<T> GetRedisCommandPolicy<T>() =>
+            Policy.WrapAsync(GetFallBackPolicy<T>(), GetRedisCircuitBreakerPolicy<T>(), GetTimeoutPolicy<T>(new TimeSpan(0, 0, 30)));
     }
 }
