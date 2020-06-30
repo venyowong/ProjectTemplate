@@ -2,9 +2,9 @@
     "$schema": "http://json.schemastore.org/template",
     "author": "Venyo Wong",
     "classifications": [ "Web", "MVC" ],
-    "identity": "EMoney.Base",
-    "name": "EMoney.Base",
-    "shortName": "embase",
+    "identity": "Base",
+    "name": "Base",
+    "shortName": "base",
     "symbols": {
         "ProjectName": {
             "type": "parameter",

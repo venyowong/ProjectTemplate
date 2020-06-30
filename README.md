@@ -59,4 +59,4 @@ Serilog 日志组件目前仅输出到 Console 和本地文件，若需要接入
 2. cd {ProjectRoot}/src/.template.config
 3. dotnet new --install .
 4. 在需要创建项目的目录下打开新的命令行窗口
-5. dotnet new embase --ProjectName EMoneyBase.Test -o EMoneyBase.Test
+5. dotnet new base --ProjectName Base.Test -o Base.Test
