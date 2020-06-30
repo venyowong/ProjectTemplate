@@ -4,10 +4,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageType>Template</PackageType>
     <PackageVersion>1.0</PackageVersion>
-    <PackageId>EMoney.Base</PackageId>
-    <Title>EMoney.Base</Title>
+    <PackageId>Base</PackageId>
+    <Title>Base</Title>
     <Authors>Venyo Wong</Authors>
-    <Description>EMoney.Base</Description>
+    <Description>Base</Description>
     <PackageTags>dotnet-new;templates</PackageTags>
 
     <IncludeContentInPack>true</IncludeContentInPack>
