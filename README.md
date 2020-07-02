@@ -58,7 +58,6 @@ http 参照 GithubService，数据库参照 DbConnectionExtension，redis 参照
 ----------------
 
 1. Clone 此项目到本地
-2. cd {ProjectRoot}/src/.template.config
-3. dotnet new --install .
-4. 在需要创建项目的目录下打开新的命令行窗口
-5. dotnet new base --ProjectName Base.Test -o Base.Test
+2. dotnet new --install {ProjectRoot}/src
+3. 在需要创建项目的目录下打开新的命令行窗口
+4. dotnet new base --ProjectName Base.Test -o Base.Test
