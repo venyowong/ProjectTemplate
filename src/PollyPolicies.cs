@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -13,6 +15,11 @@ namespace ProjectTemplate
 {
     public static class PollyPolicies
     {
+        /// <summary>
+        /// -2 timeout   -1、2、53 与服务器建立连接发生异常
+        /// </summary>
+        private static List<int> _sqlExceptionErrorCodes = new List<int> { -1, -2, 2, 53 };
+        
         public static IAsyncPolicy<HttpResponseMessage> HttpFallBackPolicy
         {
             get => Policy<HttpResponseMessage>.Handle<Exception>().FallbackAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError), d =>
@@ -56,13 +63,13 @@ namespace ProjectTemplate
             Policy.WrapAsync(HttpFallBackPolicy, HttpRetryPolicy, HttpCircuitBreakerPolicy, GetHttpTimeoutPolicy(timeout));
 
         public static IAsyncPolicy<T> GetDbRetryPolicy<T>() => 
-            Policy<T>.Handle<DbException>()
-                .Or<TimeoutRejectedException>()
+            Policy<T>.Handle<TimeoutRejectedException>()
+                .Or<SqlException>(e => _sqlExceptionErrorCodes.Contains(e.Number))
                 .WaitAndRetryAsync(new[] { TimeSpan.FromMilliseconds(100) });
 
         public static IAsyncPolicy<T> GetDbCircuitBreakerPolicy<T>() => 
-            Policy<T>.Handle<DbException>()
-                .Or<TimeoutRejectedException>()
+            Policy<T>.Handle<TimeoutRejectedException>()
+                .Or<SqlException>(e => _sqlExceptionErrorCodes.Contains(e.Number))
                 .CircuitBreakerAsync(3, new TimeSpan(0, 0, 30), (d, ts) =>
                 {
                     Log.Warning($"Open DB Circuit Breaker：{ts.TotalMilliseconds}");
@@ -92,7 +99,6 @@ namespace ProjectTemplate
         public static IAsyncPolicy<T> GetRedisCircuitBreakerPolicy<T>() => 
             Policy<T>.Handle<RedisException>()
                 .Or<RedisConnectionException>()
-                .Or<RedisCommandException>()
                 .Or<RedisServerException>()
                 .Or<RedisTimeoutException>()
                 .Or<TimeoutRejectedException>()
