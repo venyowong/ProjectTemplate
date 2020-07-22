@@ -46,7 +46,7 @@ namespace ProjectTemplate.Controllers
 
             using (dbConnection)
             {
-                return await dbConnection.QueryWithPolly<Feed>("query resader.feed", "SELECT * FROM resader.feed limit 1;");
+                return await dbConnection.QueryWithPolly<Feed>("SELECT * FROM resader.feed limit 1;");
             }
         }
 
@@ -76,7 +76,7 @@ namespace ProjectTemplate.Controllers
 
             using (dbConnection)
             {
-                return await dbConnection.QueryWithPolly<dynamic>("query [master].[dbo].[OrleansQuery]", "SELECT TOP 1 * FROM [master].[dbo].[OrleansQuery]");
+                return await dbConnection.QueryWithPolly<dynamic>("SELECT TOP 1 * FROM [master].[dbo].[OrleansQuery]");
             }
         }
     }

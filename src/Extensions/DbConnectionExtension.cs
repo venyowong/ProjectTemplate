@@ -3,6 +3,7 @@ using Polly;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace ProjectTemplate.Extensions
@@ -11,10 +12,11 @@ namespace ProjectTemplate.Extensions
     {
         private static ConcurrentDictionary<string, object> _dictionary = new ConcurrentDictionary<string, object>();
         
-        public static async Task<IEnumerable<T>> QueryWithPolly<T>(this IDbConnection cnn, string policyKey, string sql, 
-            object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        public static async Task<IEnumerable<T>> QueryWithPolly<T>(this IDbConnection cnn, string sql, object param = null, 
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, 
+            [CallerMemberName] string memberName = "")
         {
-            var key = cnn.ConnectionString + policyKey;
+            var key = cnn.ConnectionString + memberName;
             IAsyncPolicy<IEnumerable<T>> policy = null;
             if (_dictionary.ContainsKey(key))
             {
