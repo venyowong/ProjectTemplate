@@ -1,5 +1,5 @@
 using System;
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using Dapper;
@@ -22,8 +22,8 @@ namespace ProjectTemplate
         {
             if (member == null) return null;
 
-            var attrib = (DescriptionAttribute)Attribute.GetCustomAttribute(member, typeof(DescriptionAttribute), false);
-            return attrib == null ? null : attrib.Description;
+            var attrib = (ColumnAttribute)Attribute.GetCustomAttribute(member, typeof(ColumnAttribute), false);
+            return attrib == null ? null : attrib.Name;
         }
     }
 }
