@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace ProjectTemplate
 {
@@ -21,17 +22,16 @@ namespace ProjectTemplate
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("hostsettings.json", optional: true)
-                .AddCommandLine(args)            
-                .Build();
-
             return Host.CreateDefaultBuilder(args)
+                .UseSerilog((context, config) =>
+                {
+                    config.MinimumLevel.Information()
+                        .ReadFrom.Configuration(context.Configuration)
+                        .Enrich.FromLogContext();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseConfiguration(config)
-                        .UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>();
                 });
         }
     }

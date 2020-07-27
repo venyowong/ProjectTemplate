@@ -60,25 +60,14 @@ namespace ProjectTemplate
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<Configuration> configuration)
         {
-            var logSwitch = new LoggingLevelSwitch();
             if (env.IsDevelopment())
             {
-                logSwitch.MinimumLevel = LogEventLevel.Information;
                 app.UseDeveloperExceptionPage();
                 app.UseOpenApi();
                 app.UseSwaggerUi3();
             }
-            else
-            {
-                logSwitch.MinimumLevel = LogEventLevel.Warning;
-            }
             app.UseStaticFiles();
 
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(logSwitch)
-                .ReadFrom.Configuration(this.Configuration)
-                .Enrich.FromLogContext()
-                .CreateLogger();
             app.UseMiddleware<LogMiddleware>();
 
             app.UseIpRateLimiting();
