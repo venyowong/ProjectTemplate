@@ -91,7 +91,7 @@ namespace ProjectTemplate
             });
 
         public static IAsyncPolicy<T> GetDbConnectionPolicy<T>() =>
-            Policy.WrapAsync(GetFallBackPolicy<T>(), GetDbRetryPolicy<T>(), GetDbCircuitBreakerPolicy<T>(), GetTimeoutPolicy<T>(TimeSpan.FromMilliseconds(10)));
+            Policy.WrapAsync(GetFallBackPolicy<T>(), GetDbRetryPolicy<T>(), GetDbCircuitBreakerPolicy<T>(), GetTimeoutPolicy<T>(TimeSpan.FromSeconds(10)));
 
         public static IAsyncPolicy<T> GetDbCommandPolicy<T>() =>
             Policy.WrapAsync(GetFallBackPolicy<T>(), GetDbCircuitBreakerPolicy<T>(), GetTimeoutPolicy<T>(new TimeSpan(0, 1, 0)));
