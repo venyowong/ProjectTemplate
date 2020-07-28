@@ -38,7 +38,7 @@ namespace ProjectTemplate.Controllers
         {
             Log.Information("/Http/Get");
             Log.Information(Guid.NewGuid().ToString());
-            var dbConnection = this.dbConnectionFactory.CreateDbConnection("MySql", "resader");
+            var dbConnection = await this.dbConnectionFactory.CreateDbConnection("MySql", "resader");
             if (dbConnection == null)
             {
                 return null;
@@ -68,7 +68,7 @@ namespace ProjectTemplate.Controllers
         [HttpGet("sqlserver")]
         public async Task<object> QuerySqlServer()
         {
-            var dbConnection = this.dbConnectionFactory.CreateDbConnection("SqlServer", "resader");
+            var dbConnection = await this.dbConnectionFactory.CreateDbConnection("SqlServer", "resader");
             if (dbConnection == null)
             {
                 return null;
