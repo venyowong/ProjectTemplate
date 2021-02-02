@@ -24,7 +24,7 @@ namespace ProjectTemplate
         {
             get => Policy<HttpResponseMessage>.Handle<Exception>().FallbackAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError), d =>
             {
-                Log.Warning($"Fallback: {d.Exception.GetType().Name} {d.Exception.Message}");
+                Log.Warning(d.Exception, $"Fallback: {d.Result?.StatusCode} {d.Result?.ReasonPhrase}");
                 return Task.CompletedTask;
             });
         }
