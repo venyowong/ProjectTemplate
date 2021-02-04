@@ -72,7 +72,7 @@ namespace ProjectTemplate
                 .Or<SqlException>(e => _sqlExceptionErrorCodes.Contains(e.Number))
                 .CircuitBreakerAsync(3, new TimeSpan(0, 0, 30), (d, ts) =>
                 {
-                    Log.Warning($"Open DB Circuit Breaker：{ts.TotalMilliseconds}");
+                    Log.Warning(d.Exception, $"Open DB Circuit Breaker：{ts.TotalMilliseconds}");
                 }, () =>
                 {
                     Log.Warning("Closed DB Circuit Breaker");
@@ -91,7 +91,7 @@ namespace ProjectTemplate
             });
 
         public static IAsyncPolicy<T> GetDbConnectionPolicy<T>() =>
-            Policy.WrapAsync(GetFallBackPolicy<T>(), GetDbRetryPolicy<T>(), GetDbCircuitBreakerPolicy<T>(), GetTimeoutPolicy<T>(TimeSpan.FromSeconds(10)));
+            Policy.WrapAsync(GetFallBackPolicy<T>(), GetDbRetryPolicy<T>(), GetDbCircuitBreakerPolicy<T>(), GetTimeoutPolicy<T>(TimeSpan.FromSeconds(30)));
 
         public static IAsyncPolicy<T> GetDbCommandPolicy<T>() =>
             Policy.WrapAsync(GetFallBackPolicy<T>(), GetDbCircuitBreakerPolicy<T>(), GetTimeoutPolicy<T>(new TimeSpan(0, 1, 0)));
@@ -104,7 +104,7 @@ namespace ProjectTemplate
                 .Or<TimeoutRejectedException>()
                 .CircuitBreakerAsync(3, new TimeSpan(0, 0, 30), (d, ts) =>
                 {
-                    Log.Warning($"Open Redis Circuit Breaker：{ts.TotalMilliseconds}");
+                    Log.Warning(d.Exception, $"Open Redis Circuit Breaker：{ts.TotalMilliseconds}");
                 }, () =>
                 {
                     Log.Warning("Closed Redis Circuit Breaker");
