@@ -16,7 +16,7 @@ namespace ProjectTemplate.Extensions
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, 
             [CallerMemberName] string callerMemberName = "")
         {
-            var key = cnn.ConnectionString + callerMemberName;
+            var key = cnn.ConnectionString + "QueryWithPolly" + callerMemberName;
             IAsyncPolicy<IEnumerable<T>> policy = null;
             if (_dictionary.ContainsKey(key))
             {
@@ -38,7 +38,7 @@ namespace ProjectTemplate.Extensions
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, 
             [CallerMemberName] string callerMemberName = "")
         {
-            var key = cnn.ConnectionString + callerMemberName;
+            var key = cnn.ConnectionString + "ExecuteScalarWithPolly" + callerMemberName;
             IAsyncPolicy<T> policy = null;
             if (_dictionary.ContainsKey(key))
             {
@@ -59,7 +59,7 @@ namespace ProjectTemplate.Extensions
         public static async Task<bool> ExecuteWithPolly(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, 
             int? commandTimeout = null, CommandType? commandType = null, [CallerMemberName] string callerMemberName = "")
         {
-            var key = cnn.ConnectionString + callerMemberName;
+            var key = cnn.ConnectionString + "ExecuteWithPolly" + callerMemberName;
             IAsyncPolicy<bool> policy = null;
             if (_dictionary.ContainsKey(key))
             {
@@ -81,7 +81,7 @@ namespace ProjectTemplate.Extensions
             IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, 
             [CallerMemberName] string callerMemberName = "")
         {
-            var key = cnn.ConnectionString + callerMemberName;
+            var key = cnn.ConnectionString + "QueryFirstOrDefaultWithPolly" + callerMemberName;
             IAsyncPolicy<T> policy = null;
             if (_dictionary.ContainsKey(key))
             {
