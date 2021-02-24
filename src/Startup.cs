@@ -12,9 +12,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
 using Polly;
+using ProjectTemplate.Extensions;
 using ProjectTemplate.Factories;
+using ProjectTemplate.Jobs;
 using ProjectTemplate.Middlewares;
+using ProjectTemplate.Quartz;
 using ProjectTemplate.Services;
+using Quartz.Spi;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -55,6 +59,11 @@ namespace ProjectTemplate
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             }));
+
+            services.AddSingleton<IJobFactory, CustomJobFactory>();
+            services.AddHostedService<QuartzHostedService>();
+
+            services.AddTransientBothTypes<IScheduledJob, HelloJob>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
