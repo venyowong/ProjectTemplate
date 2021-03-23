@@ -10,7 +10,7 @@ namespace ProjectTemplate
     {
         public static void MakeDapperMapping(string namspace)
         {
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("ProjectTemplate")))
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (var type in assembly.GetTypes().Where(t => t.FullName.Contains(namspace)))
                 {
