@@ -10,11 +10,14 @@ namespace ProjectTemplate
     {
         public static void MakeDapperMapping(string namspace)
         {
-            foreach (var type in Assembly.GetEntryAssembly().GetTypes().Where(t => t.FullName.Contains(namspace)))
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("ProjectTemplate")))
             {
-                var map = new CustomPropertyTypeMap(type, (t, columnName) => t.GetProperties().FirstOrDefault(
-                    prop => GetDescriptionFromAttribute(prop) == columnName || prop.Name.ToLower().Equals(columnName.ToLower())));
-                Dapper.SqlMapper.SetTypeMap(type, map);
+                foreach (var type in assembly.GetTypes().Where(t => t.FullName.Contains(namspace)))
+                {
+                    var map = new CustomPropertyTypeMap(type, (t, columnName) => t.GetProperties().FirstOrDefault(
+                        prop => GetDescriptionFromAttribute(prop) == columnName || prop.Name.ToLower().Equals(columnName.ToLower())));
+                    SqlMapper.SetTypeMap(type, map);
+                }
             }
         }
 
