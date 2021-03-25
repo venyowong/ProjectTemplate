@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 
 namespace ProjectTemplate
 {
@@ -26,6 +27,8 @@ namespace ProjectTemplate
                 .UseSerilog((context, config) =>
                 {
                     config.MinimumLevel.Information()
+                        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                        .MinimumLevel.Override("System", LogEventLevel.Warning)
                         .ReadFrom.Configuration(context.Configuration)
                         .Enrich.FromLogContext();
                 })
