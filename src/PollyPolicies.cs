@@ -86,7 +86,7 @@ namespace ProjectTemplate
         public static IAsyncPolicy<T> GetFallBackPolicy<T>() => 
             Policy<T>.Handle<Exception>().FallbackAsync(default(T), d =>
             {
-                Log.Warning($"Fallback: {d.Exception.GetType().Name} {d.Exception.Message}");
+                Log.Warning(d.Exception, "DbFallBack");
                 return Task.CompletedTask;
             });
 
