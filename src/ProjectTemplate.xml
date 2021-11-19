@@ -4,6 +4,25 @@
         <name>ProjectTemplate</name>
     </assembly>
     <members>
+        <member name="M:ProjectTemplate.Extensions.HttpClientExtension.GetWithPolly(System.Net.Http.HttpClient,System.String,System.Int32)">
+            <summary>
+            基于 Polly 发起 GET 请求
+            </summary>
+            <param name="client"></param>
+            <param name="requestUri"></param>
+            <param name="timeout">超时时长，分钟</param>
+            <returns></returns>
+        </member>
+        <member name="M:ProjectTemplate.Extensions.HttpClientExtension.PostWithPolly(System.Net.Http.HttpClient,System.String,System.Object,System.Int32)">
+            <summary>
+            基于 Polly 发起 POST 请求
+            </summary>
+            <param name="client"></param>
+            <param name="requestUri"></param>
+            <param name="body"></param>
+            <param name="timeout">超时时长，分钟</param>
+            <returns></returns>
+        </member>
         <member name="M:ProjectTemplate.Extensions.ServiceCollectionExtension.AddTransientBothTypes``2(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             为父类型和子类型同时添加服务实例
@@ -13,6 +32,20 @@
             <typeparam name="TService"></typeparam>
             <typeparam name="TImplementation"></typeparam>
             <param name="services"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ProjectTemplate.Extensions.StringExtension.GZipDecompress(System.String)">
+            <summary>
+            GZip 解压
+            </summary>
+            <param name="zippedString"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ProjectTemplate.Extensions.StringExtension.GZipDecompress(System.Byte[])">
+            <summary>
+            GZip 解压
+            </summary>
+            <param name="zippedData"></param>
             <returns></returns>
         </member>
         <member name="F:ProjectTemplate.PollyPolicies._sqlExceptionErrorCodes">

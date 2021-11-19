@@ -11,9 +11,9 @@ namespace ProjectTemplate.Extensions
     public static class DbConnectionExtension
     {
         private static ConcurrentDictionary<string, object> _dictionary = new ConcurrentDictionary<string, object>();
-        
-        public static async Task<IEnumerable<T>> QueryWithPolly<T>(this IDbConnection cnn, string sql, object param = null, 
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, 
+
+        public static async Task<IEnumerable<T>> QueryWithPolly<T>(this IDbConnection cnn, string sql, object param = null,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null,
             [CallerMemberName] string callerMemberName = "")
         {
             var key = cnn.ConnectionString + "QueryWithPolly" + callerMemberName;
@@ -28,14 +28,14 @@ namespace ProjectTemplate.Extensions
                 _dictionary.TryAdd(key, policy);
             }
 
-            return await policy.ExecuteAsync(async () =>
+            return await policy.ExecuteAsync(async c =>
             {
                 return await cnn.QueryAsync<T>(sql, param, transaction, commandTimeout, commandType);
-            });
+            }, new Context { { "callerMemberName", callerMemberName }, { "sql", sql }, { "param", param.ToJson() } });
         }
 
-        public static async Task<T> ExecuteScalarWithPolly<T>(this IDbConnection cnn, string sql, object param = null, 
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, 
+        public static async Task<T> ExecuteScalarWithPolly<T>(this IDbConnection cnn, string sql, object param = null,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null,
             [CallerMemberName] string callerMemberName = "")
         {
             var key = cnn.ConnectionString + "ExecuteScalarWithPolly" + callerMemberName;
@@ -50,13 +50,13 @@ namespace ProjectTemplate.Extensions
                 _dictionary.TryAdd(key, policy);
             }
 
-            return await policy.ExecuteAsync(async () =>
+            return await policy.ExecuteAsync(async c =>
             {
                 return await cnn.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType);
-            });
+            }, new Context { { "callerMemberName", callerMemberName }, { "sql", sql }, { "param", param.ToJson() } });
         }
 
-        public static async Task<bool> ExecuteWithPolly(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null, 
+        public static async Task<bool> ExecuteWithPolly(this IDbConnection cnn, string sql, object param = null, IDbTransaction transaction = null,
             int? commandTimeout = null, CommandType? commandType = null, [CallerMemberName] string callerMemberName = "")
         {
             var key = cnn.ConnectionString + "ExecuteWithPolly" + callerMemberName;
@@ -71,14 +71,14 @@ namespace ProjectTemplate.Extensions
                 _dictionary.TryAdd(key, policy);
             }
 
-            return await policy.ExecuteAsync(async () =>
+            return await policy.ExecuteAsync(async c =>
             {
                 return (await cnn.ExecuteAsync(sql, param, transaction, commandTimeout, commandType)) > 0;
-            });
+            }, new Context { { "callerMemberName", callerMemberName }, { "sql", sql }, { "param", param.ToJson() } });
         }
 
-        public static async Task<T> QueryFirstOrDefaultWithPolly<T>(this IDbConnection cnn, string sql, object param = null, 
-            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, 
+        public static async Task<T> QueryFirstOrDefaultWithPolly<T>(this IDbConnection cnn, string sql, object param = null,
+            IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null,
             [CallerMemberName] string callerMemberName = "")
         {
             var key = cnn.ConnectionString + "QueryFirstOrDefaultWithPolly" + callerMemberName;
@@ -93,10 +93,10 @@ namespace ProjectTemplate.Extensions
                 _dictionary.TryAdd(key, policy);
             }
 
-            return await policy.ExecuteAsync(async () =>
+            return await policy.ExecuteAsync(async c =>
             {
                 return await cnn.QueryFirstOrDefaultAsync<T>(sql, param, transaction, commandTimeout, commandType);
-            });
+            }, new Context { { "callerMemberName", callerMemberName }, { "sql", sql }, { "param", param.ToJson() } });
         }
     }
 }
