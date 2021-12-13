@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Dapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using ProjectTemplate.Extensions;
 using ProjectTemplate.Factories;
 using ProjectTemplate.Models;
@@ -83,16 +79,8 @@ namespace ProjectTemplate.Controllers
         [HttpGet("sqlserver")]
         public async Task<object> QuerySqlServer()
         {
-            var dbConnection = await this.dbConnectionFactory.CreateDbConnection("SqlServer", "resader");
-            if (dbConnection == null)
-            {
-                return null;
-            }
-
-            using (dbConnection)
-            {
-                return await dbConnection.QueryWithPolly<dynamic>("SELECT TOP 1 * FROM [master].[dbo].[OrleansQuery]");
-            }
+            using var dbConnection = await this.dbConnectionFactory.CreateDbConnection("SqlServer", "resader");
+            return await dbConnection.QueryWithPolly<dynamic>("SELECT TOP 1 * FROM [master].[dbo].[OrleansQuery]");
         }
     }
 }

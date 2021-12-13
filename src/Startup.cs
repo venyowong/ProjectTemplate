@@ -1,27 +1,19 @@
-using System;
-using System.Data;
-using System.Threading.Tasks;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using MySql.Data.MySqlClient;
-using Polly;
 using ProjectTemplate.Extensions;
 using ProjectTemplate.Factories;
+using ProjectTemplate.Helpers;
 using ProjectTemplate.Jobs;
 using ProjectTemplate.Middlewares;
 using ProjectTemplate.Quartz;
 using ProjectTemplate.Services;
 using Quartz.Spi;
-using Serilog;
-using Serilog.Core;
-using Serilog.Events;
 using StackExchange.Redis;
 
 namespace ProjectTemplate
@@ -91,7 +83,7 @@ namespace ProjectTemplate
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            Utility.MakeDapperMapping("ProjectTemplate.Models");
+            DapperHelper.MakeDapperMapping("ProjectTemplate.Models");
         }
 
         private void AddRateLimit(IServiceCollection services)
