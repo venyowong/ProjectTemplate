@@ -69,12 +69,12 @@ namespace ProjectTemplate.Controllers
         public async Task<object> GetRedisRandomValue2()
         {
             var key = Guid.NewGuid().ToString();
-            var value = Guid.NewGuid().ToString();
-            await this.redis.SetAsync(key, value);
-            var (val, e) = await this.redis.GetAsync<string>(key);
+            var list = new List<string> { Guid.NewGuid().ToString() };
+            await this.redis.SetAsync(key, list);
+            var (val, e) = await this.redis.GetAsync<List<string>>(key);
             if (e != null)
             {
-                return "get an exception when get string from redis service";
+                return "get an exception when get object from redis service";
             }
 
             return val;
