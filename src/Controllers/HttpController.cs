@@ -20,17 +20,17 @@ namespace ProjectTemplate.Controllers
     public class HttpController : Controller
     {
         private GitHubService gitHubService;
-
         private DbConnectionFactory dbConnectionFactory;
-
         private IDatabase database;
+        private RedisService redis;
 
         public HttpController(GitHubService gitHubService, DbConnectionFactory dbConnectionFactory, 
-            IDatabase database)
+            IDatabase database, RedisService redis)
         {
             this.gitHubService = gitHubService;
             this.dbConnectionFactory = dbConnectionFactory;
             this.database = database;
+            this.redis = redis;
         }
 
         [HttpGet("Get")]
@@ -63,6 +63,21 @@ namespace ProjectTemplate.Controllers
             var value = Guid.NewGuid().ToString();
             await this.database.StringSetWithPolly(key, value);
             return await this.database.StringGetWithPolly(key);
+        }
+
+        [HttpGet("redisservice")]
+        public async Task<object> GetRedisRandomValue2()
+        {
+            var key = Guid.NewGuid().ToString();
+            var value = Guid.NewGuid().ToString();
+            await this.redis.SetAsync(key, value);
+            var (val, e) = await this.redis.GetAsync<string>(key);
+            if (e != null)
+            {
+                return "get an exception when get string from redis service";
+            }
+
+            return val;
         }
 
         [HttpGet("sqlserver")]

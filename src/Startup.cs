@@ -45,13 +45,14 @@ namespace ProjectTemplate
 
             services.AddHttpClient<GitHubService>();
             
-            services.AddSingleton<DbConnectionFactory>();
-            services.AddSingleton<ConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(this.Configuration["Redis:ConnectionString"]));
-            services.AddTransient<IDatabase>(serviceProvider =>
-            {
-                int.TryParse(this.Configuration["Redis:DefaultDb"], out int db);
-                return serviceProvider.GetService<ConnectionMultiplexer>().GetDatabase(db);
-            });
+            services.AddSingleton<DbConnectionFactory>()
+                .AddSingleton(_ => ConnectionMultiplexer.Connect(this.Configuration["Redis:ConnectionString"]))
+                .AddTransient(serviceProvider =>
+                {
+                    int.TryParse(this.Configuration["Redis:DefaultDb"], out int db);
+                    return serviceProvider.GetService<ConnectionMultiplexer>().GetDatabase(db);
+                })
+                .AddTransient(serviceProvider => new RedisService(serviceProvider.GetService<IDatabase>()));
 
             services.AddCors(o => o.AddPolicy("Default", builder =>
             {
