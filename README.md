@@ -11,6 +11,7 @@ asp.net core 项目模板
 - StackExchange.Redis
 - Serilog(日志组件)
 - MySql.Data
+- Quartz.Net
 
 若以上组件有不需要的，直接从 csproj 文件中删除依赖项，再删除 IDE 提示报错的代码
 
@@ -53,6 +54,50 @@ Polly
 使用 Polly 的时候，无论是 http、数据库、redis，都需要保证 Policy 的粒度足够小，确保一个 Policy 只能干预到一个操作
 
 http 参照 GithubService，数据库参照 DbConnectionExtension，redis 参照 RedisDbExtension
+
+Quartz.Net
+----------
+
+Quartz 定时任务，要实现一个定时任务只需要继承 IJob, IScheduledJob
+```
+public class TestJob : IJob, IScheduledJob
+{
+    public async Task Execute(IJobExecutionContext context)
+    {
+        
+    }
+
+    public IJobDetail GetJobDetail()
+    {
+        return JobBuilder.Create<TestJob>()
+            .WithIdentity("TestJob", "Test")
+            .StoreDurably()
+            .Build();
+    }
+
+    public IEnumerable<ITrigger> GetTriggers()
+    {
+        yield return TriggerBuilder.Create()
+            .WithIdentity("TestJob_Trigger1", "Test")
+            .WithCronSchedule("0 1 * * * ?")
+            .ForJob("TestJob", "Test")
+            .Build();
+
+        yield return TriggerBuilder.Create()
+            .WithIdentity("TestJob_RightNow", "Test")
+            .StartNow()
+            .ForJob("TestJob", "Test")
+            .Build();
+    }
+}
+```
+然后在 Startup.ConfigureServices 中注册服务
+```
+services.AddSingleton<IJobFactory, CustomJobFactory>();
+services.AddHostedService<QuartzHostedService>();
+
+services.AddTransientBothTypes<IScheduledJob, TestJob>();
+```
 
 以此为模板创建项目
 ----------------
