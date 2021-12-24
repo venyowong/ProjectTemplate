@@ -23,9 +23,9 @@ namespace ProjectTemplate
 
         public static IAsyncPolicy<HttpResponseMessage> HttpFallBackPolicy
         {
-            get => Policy<HttpResponseMessage>.Handle<Exception>().FallbackAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError), d =>
+            get => Policy<HttpResponseMessage>.Handle<Exception>().FallbackAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError), (d, context) =>
             {
-                Log.Warning(d.Exception, $"Fallback: {d.Result?.StatusCode} {d.Result?.ReasonPhrase}");
+                Log.Warning(d.Exception, $"url: {context.GetUrl()} status: {d.Result?.StatusCode} {d.Result?.ReasonPhrase}");
                 return Task.CompletedTask;
             });
         }

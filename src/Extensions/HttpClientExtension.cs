@@ -31,7 +31,7 @@ namespace ProjectTemplate.Extensions
                 _dictionary.TryAdd(requestUri, policy);
             }
 
-            return policy.ExecuteAsync(async () => await client.GetAsync(requestUri));
+            return policy.ExecuteAsync(async c => await client.GetAsync(requestUri), new Context { { "url", requestUri } });
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace ProjectTemplate.Extensions
                 _dictionary.TryAdd(requestUri, policy);
             }
 
-            return policy.ExecuteAsync(async () => await client.PostAsJsonAsync(requestUri, body));
+            return policy.ExecuteAsync(async c => await client.PostAsJsonAsync(requestUri, body), new Context { { "url", requestUri } });
         }
     }
 }

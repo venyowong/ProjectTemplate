@@ -28,5 +28,20 @@ namespace ProjectTemplate.Extensions
             }
             return $"callerMemberName: {callerMemberName}, sql: {sql}, param: {param}";
         }
+
+        public static string GetUrl(this Context context)
+        {
+            if (context == null)
+            {
+                return string.Empty;
+            }
+
+            var url = string.Empty;
+            if (context.ContainsKey("url"))
+            {
+                url = context["url"].ToString();
+            }
+            return url;
+        }
     }
 }
