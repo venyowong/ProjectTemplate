@@ -70,7 +70,8 @@ namespace ProjectTemplate
             }
             app.UseStaticFiles();
 
-            app.UseMiddleware<LogMiddleware>();
+            app.UseMiddleware<LogMiddleware>()
+                .UseMiddleware<ManualTriggerMiddleware>();
 
             app.UseIpRateLimiting();
 
