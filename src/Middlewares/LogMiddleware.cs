@@ -34,7 +34,7 @@ namespace ProjectTemplate.Middlewares
                 {
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     context.Response.ContentType = "application/json";
-                    Log.Error(e, $"an error occure, url: {context.Request.GetAbsoluteUrl()} body: {body}");
+                    Log.Error(e, $"an error occure, url: {context.Request.GetAbsoluteUrl()} body: {body} remote ip: {context.Connection.RemoteIpAddress} headers: {context.Request.Headers.ToJson()}");
                     await context.Response.WriteAsync("an error occure");
                 }
             }
