@@ -18,7 +18,11 @@ namespace ProjectTemplate.Services
 
         public async Task<(T, Exception)> GetAsync<T>(string key) where T : class
         {
+            #if (Polly)
             var cache = await this.db.StringGetWithPolly(key);
+            #else
+            var cache = await this.db.StringGetAsync(key);
+            #endif
             if (cache.IsNullOrEmpty)
             {
                 return default;
@@ -31,7 +35,11 @@ namespace ProjectTemplate.Services
 
         public async Task<(List<T>, Exception)> GetCompressedList<T>(string key)
         {
+            #if (Polly)
             var cache = await this.db.StringGetWithPolly(key);
+            #else
+            var cache = await this.db.StringGetAsync(key);
+            #endif
             if (cache.IsNullOrEmpty)
             {
                 return default;
@@ -50,7 +58,11 @@ namespace ProjectTemplate.Services
 
         public async Task<T> GetAsync<T>(string key, Func<Task<T>> init, TimeSpan timeSpan = default) where T : class
         {
+            #if (Polly)
             var cache = await this.db.StringGetWithPolly(key);
+            #else
+            var cache = await this.db.StringGetAsync(key);
+            #endif
             T result;
             if (cache.IsNullOrEmpty)
             {
@@ -65,7 +77,11 @@ namespace ProjectTemplate.Services
                     var (json, e) = result.ToJson();
                     if (e == null)
                     {
-                        this.db.StringSet(key, json);
+                        #if (Polly)
+                        await this.db.StringSetWithPolly(key, json);
+                        #else
+                        await this.db.StringSetAsync(key, json);
+                        #endif
                     }
                 }
                 else
@@ -73,7 +89,11 @@ namespace ProjectTemplate.Services
                     var (json, e) = result.ToJson();
                     if (e == null)
                     {
+                        #if (Polly)
+                        await this.db.StringSetWithPolly(key, json, timeSpan);
+                        #else
                         this.db.StringSet(key, json, timeSpan);
+                        #endif
                     }
                 }
             }
@@ -98,7 +118,11 @@ namespace ProjectTemplate.Services
                 return false;
             }
 
+            #if (Polly)
             return await this.db.StringSetWithPolly(key, json, expiry);
+            #else
+            return await this.db.StringSetAsync(key, json, expiry);
+            #endif
         }
 
         public async Task<bool> SetCompressedList<T>(string key, List<T> list, TimeSpan? expiry = null)
@@ -121,7 +145,11 @@ namespace ProjectTemplate.Services
                 return false;
             }
 
-            return await this.db.StringSetWithPolly(key, value, expiry);
+            #if (Polly)
+            return await this.db.StringSetWithPolly(key, json, expiry);
+            #else
+            return await this.db.StringSetAsync(key, json, expiry);
+            #endif
         }
 
         public async Task<bool> HashSet(RedisKey redisKey, RedisValue hashField, object value)
@@ -132,19 +160,40 @@ namespace ProjectTemplate.Services
                 return false;
             }
 
+            #if (Polly)
             return await this.db.HashSetWithPolly(redisKey, hashField, json);
+            #else
+            return await this.db.HashSetAsync(redisKey, hashField, json);
+            #endif
         }
 
         public async Task<bool> HashSet<T>(RedisKey key, IEnumerable<T> list, Func<T, RedisValue> nameSelector)
         {
+            #if (Polly)
             return await this.db.HashSetWithPolly(key, list.Select(x =>
             {
                 var (json, _) = x.ToJson();
                 return new HashEntry(nameSelector(x), json);
             }).Where(x => !string.IsNullOrWhiteSpace(x.Value)).ToArray());
+            #else
+            await this.db.HashSetAsync(key, list.Select(x =>
+            {
+                var (json, _) = x.ToJson();
+                return new HashEntry(nameSelector(x), json);
+            }).Where(x => !string.IsNullOrWhiteSpace(x.Value)).ToArray());
+            return true;
+            #endif
         }
 
-        public Task<bool> HashSet(RedisKey key, HashEntry[] hashEntries) => this.db.HashSetWithPolly(key, hashEntries);
+        public async Task<bool> HashSet(RedisKey key, HashEntry[] hashEntries)
+        {
+            #if (Polly)
+            return await this.db.HashSetWithPolly(key, hashEntries);
+            #else
+            await this.db.HashSetAsync(key, hashEntries);
+            return true;
+            #endif
+        }
 
         public async Task<bool> HashSetCompressedList<T>(RedisKey redisKey, RedisValue hashField, List<T> list)
         {
@@ -161,12 +210,20 @@ namespace ProjectTemplate.Services
                 return false;
             }
 
+            #if (Polly)
             return await this.db.HashSetWithPolly(redisKey, hashField, value);
+            #else
+            return await this.db.HashSetAsync(redisKey, hashField, value);
+            #endif
         }
 
         public async Task<(List<T>, Exception)> HashGetCompressedList<T>(RedisKey redisKey, RedisValue hashField)
         {
+            #if (Polly)
             var cache = await this.db.HashGetWithPolly(redisKey, hashField);
+            #else
+            var cache = await this.db.HashGetAsync(redisKey, hashField);
+            #endif
             if (cache.IsNullOrEmpty)
             {
                 return default;
@@ -185,7 +242,11 @@ namespace ProjectTemplate.Services
 
         public async Task<(T, Exception)> HashGet<T>(RedisKey redisKey, RedisValue hashField)
         {
+            #if (Polly)
             var cache = await this.db.HashGetWithPolly(redisKey, hashField);
+            #else
+            var cache = await this.db.HashGetAsync(redisKey, hashField);
+            #endif
             if (cache.IsNullOrEmpty)
             {
                 return default;
@@ -198,7 +259,11 @@ namespace ProjectTemplate.Services
 
         public async Task<Dictionary<string, List<T>>> HashGetAllCompressedList<T>(RedisKey redisKey)
         {
+            #if (Polly)
             var values = await this.db.HashGetAllWithPolly(redisKey);
+            #else
+            var values = await this.db.HashGetAllAsync(redisKey);
+            #endif
             if (values.IsNullOrEmpty())
             {
                 return new Dictionary<string, List<T>>();
@@ -225,7 +290,11 @@ namespace ProjectTemplate.Services
 
         public async Task<Dictionary<string, T>> HashGetAll<T>(RedisKey redisKey)
         {
+            #if (Polly)
             var values = await this.db.HashGetAllWithPolly(redisKey);
+            #else
+            var values = await this.db.HashGetAllAsync(redisKey);
+            #endif
             if (values.IsNullOrEmpty())
             {
                 return new Dictionary<string, T>();
@@ -243,9 +312,23 @@ namespace ProjectTemplate.Services
             });
         }
 
-        public Task<long> HashDelete(RedisKey redisKey, RedisValue[] hashFields) => this.db.HashDeleteWithPolly(redisKey, hashFields);
+        public async Task<long> HashDelete(RedisKey redisKey, RedisValue[] hashFields)
+        {
+            #if (Polly)
+            return await this.db.HashDeleteWithPolly(redisKey, hashFields);
+            #else
+            return await this.db.HashDeleteAsync(redisKey, hashFields);
+            #endif
+        }
 
-        public Task<bool> HashDelete(RedisKey key, RedisValue hashField) => this.db.HashDeleteWithPolly(key, hashField);
+        public async Task<bool> HashDelete(RedisKey key, RedisValue hashField)
+        {
+            #if (Polly)
+            return await this.db.HashDeleteWithPolly(key, hashField);
+            #else
+            return await this.db.HashDeleteAsync(key, hashField);
+            #endif
+        }
 
         public async Task<(RedisValue, Exception)> Publish(RedisKey redisKey, object message, int? maxLength = null)
         {
@@ -255,12 +338,20 @@ namespace ProjectTemplate.Services
                 return (default, e);
             }
 
+            #if (Polly)
             return (await this.db.StreamAddWithPolly(redisKey, "message", msg, null, maxLength), default);
+            #else
+            return (await this.db.StreamAddAsync(redisKey, "message", msg, null, maxLength), default);
+            #endif
         }
 
         public async Task<Dictionary<string, T>> Consume<T>(RedisKey redisKey, RedisValue position, int? count = null)
         {
+            #if (Polly)
             var messages = await this.db.StreamReadWithPolly(redisKey, position, count);
+            #else
+            var messages = await this.db.StreamReadAsync(redisKey, position, count);
+            #endif
             if (messages.IsNullOrEmpty())
             {
                 return new Dictionary<string, T>();
@@ -292,12 +383,22 @@ namespace ProjectTemplate.Services
             return result;
         }
 
-        public Task<RedisValue[]> ZSetGetAll(RedisKey redisKey, Order order = Order.Ascending) =>
-            this.db.SortedSetRangeByRankWithPolly(redisKey, order: order);
+        public async Task<RedisValue[]> ZSetGetAll(RedisKey redisKey, Order order = Order.Ascending)
+        {
+            #if (Polly)
+            return await this.db.SortedSetRangeByRankWithPolly(redisKey, order: order);
+            #else
+            return await this.db.SortedSetRangeByRankAsync(redisKey, order: order);
+            #endif
+        }
 
         public async Task<RedisValue> ZSetGetLast(RedisKey redisKey)
         {
+            #if (Polly)
             var values = await this.db.SortedSetRangeByRankWithPolly(redisKey, -1, -1);
+            #else
+            var values = await this.db.SortedSetRangeByRankAsync(redisKey, -1, -1);
+            #endif
             if (values.IsNullOrEmpty())
             {
                 return default;
@@ -306,6 +407,13 @@ namespace ProjectTemplate.Services
             return values.First();
         }
 
-        public Task<bool> KeyDelete(RedisKey key) => this.db.KeyDeleteWithPolly(key);
+        public async Task<bool> KeyDelete(RedisKey key)
+        {
+            #if (Polly)
+            return await this.db.KeyDeleteWithPolly(key);
+            #else
+            return await this.db.KeyDeleteAsync(key);
+            #endif
+        }
     }
 }

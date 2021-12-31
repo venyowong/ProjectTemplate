@@ -5,24 +5,69 @@
     "identity": "Base",
     "name": "Base",
     "shortName": "base",
+    "preferNameDirectory": true,
     "symbols": {
-        "ProjectName": {
+        "name": {
             "type": "parameter",
             "replaces": "ProjectTemplate",
             "FileRename": "ProjectTemplate",
             "isRequired": true
+        },
+        "Swagger": {
+            "type": "parameter", 
+            "dataType":"bool", 
+            "defaultValue": "true"
+        },
+        "RateLimit": {
+            "type": "parameter", 
+            "dataType":"bool", 
+            "defaultValue": "true"
+        },
+        "Polly": {
+            "type": "parameter", 
+            "dataType":"bool", 
+            "defaultValue": "true"
+        },
+        "Quartz": {
+            "type": "parameter", 
+            "dataType":"bool", 
+            "defaultValue": "true"
         }
     },
     "sources": [
         {
-            "exclude": [
-                ".template.config/**/*",
-                ".vs/**",
-                ".vscode/**",
-                "bin/**",
-                "log/**",
-                "obj/**",
-                "ProjectTemplate.xml"
+            "modifiers": [
+                {
+                    "exclude": [
+                        ".template.config/**/*",
+                        ".vs/**",
+                        ".vscode/**",
+                        "bin/**",
+                        "log/**",
+                        "obj/**",
+                        "ProjectTemplate.xml",
+                        "Quartz/**",
+                        "Jobs/**"
+                    ]
+                },
+                {
+                    "condition": "(!Polly)",
+                    "exclude": [
+                        "PollyPolicies.cs",
+                        "Extensions/HttpClientExtension.cs",
+                        "Extensions/PollyContextExtension.cs",
+                        "Extensions/RedisDbExtension.cs",
+                        "Extensions/DbConnectionExtension.cs"
+                    ]
+                },
+                {
+                    "condition": "(!Quartz)",
+                    "exclude": [
+                        "Quartz/**",
+                        "Jobs/**",
+                        "Middlewares/ManualTriggerMiddleware.cs"
+                    ]
+                }
             ]
         }
     ]

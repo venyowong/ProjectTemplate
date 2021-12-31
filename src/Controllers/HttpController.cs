@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using ProjectTemplate.Extensions;
 using ProjectTemplate.Factories;
@@ -34,16 +35,12 @@ namespace ProjectTemplate.Controllers
         {
             Log.Information("/Http/Get");
             Log.Information(Guid.NewGuid().ToString());
-            var dbConnection = await this.dbConnectionFactory.CreateDbConnection("MySql", "resader");
-            if (dbConnection == null)
-            {
-                return null;
-            }
-
-            using (dbConnection)
-            {
-                return await dbConnection.QueryWithPolly<Feed>("SELECT * FROM resader.feed limit 1;");
-            }
+            using var dbConnection = await this.dbConnectionFactory.CreateDbConnection("MySql", "resader");
+            #if (Polly)
+            return await dbConnection.QueryWithPolly<Feed>("SELECT * FROM resader.feed limit 1;");
+            #else
+            return await dbConnection.QueryAsync<Feed>("SELECT * FROM resader.feed limit 1;");
+            #endif
         }
 
         [HttpGet("Github/Emojis")]
@@ -57,8 +54,13 @@ namespace ProjectTemplate.Controllers
         {
             var key = Guid.NewGuid().ToString();
             var value = Guid.NewGuid().ToString();
+            #if (Polly)
             await this.database.StringSetWithPolly(key, value);
             return await this.database.StringGetWithPolly(key);
+            #else
+            await this.database.StringSetAsync(key, value);
+            return await this.database.StringGetAsync(key);
+            #endif
         }
 
         [HttpGet("redisservice")]
@@ -80,7 +82,11 @@ namespace ProjectTemplate.Controllers
         public async Task<object> QuerySqlServer()
         {
             using var dbConnection = await this.dbConnectionFactory.CreateDbConnection("SqlServer", "resader");
+            #if (Polly)
             return await dbConnection.QueryWithPolly<dynamic>("SELECT TOP 1 * FROM [master].[dbo].[OrleansQuery]");
+            #else
+            return await dbConnection.QueryAsync<dynamic>("SELECT TOP 1 * FROM [master].[dbo].[OrleansQuery]");
+            #endif
         }
     }
 }

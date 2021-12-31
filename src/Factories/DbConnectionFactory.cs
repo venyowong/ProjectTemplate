@@ -3,8 +3,10 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
-using Polly;
 using Serilog;
+#if (Polly)
+using Polly;
+#endif
 
 namespace ProjectTemplate.Factories
 {
@@ -12,9 +14,11 @@ namespace ProjectTemplate.Factories
     {
         private IConfiguration config;
 
+        #if (Polly)
         private IAsyncPolicy<MySqlConnection> mySqlConnectionPolicy = PollyPolicies.GetDbConnectionPolicy<MySqlConnection>();
 
         private IAsyncPolicy<SqlConnection> sqlConnectionPolicy = PollyPolicies.GetDbConnectionPolicy<SqlConnection>();
+        #endif
 
         public DbConnectionFactory(IConfiguration config)
         {
@@ -45,6 +49,7 @@ namespace ProjectTemplate.Factories
 
         public async Task<IDbConnection> CreateMySqlConnection(string connectionString)
         {
+            #if (Polly)
             return await this.mySqlConnectionPolicy.ExecuteAsync(async () =>
             {
                 var conn = new MySqlConnection(connectionString);
@@ -54,10 +59,19 @@ namespace ProjectTemplate.Factories
                 }
                 return conn;
             });
+            #else
+            var conn = new MySqlConnection(connectionString);
+            if (conn.State != ConnectionState.Open)
+            {
+                await conn.OpenAsync();
+            }
+            return conn;
+            #endif
         }
 
         public async Task<IDbConnection> CreateSqlServerConnection(string connectionString)
         {
+            #if (Polly)
             return await this.sqlConnectionPolicy.ExecuteAsync(async () =>
             {
                 var conn = new SqlConnection(connectionString);
@@ -67,6 +81,14 @@ namespace ProjectTemplate.Factories
                 }
                 return conn;
             });
+            #else
+            var conn = new SqlConnection(connectionString);
+            if (conn.State != ConnectionState.Open)
+            {
+                await conn.OpenAsync();
+            }
+            return conn;
+            #endif
         }
     }
 }

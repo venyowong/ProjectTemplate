@@ -1,19 +1,13 @@
-using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using ProjectTemplate.Extensions;
 using ProjectTemplate.Factories;
 using ProjectTemplate.Helpers;
-using ProjectTemplate.Jobs;
 using ProjectTemplate.Middlewares;
-using ProjectTemplate.Quartz;
 using ProjectTemplate.Services;
-using Quartz.Spi;
 using StackExchange.Redis;
 
 namespace ProjectTemplate
@@ -31,8 +25,12 @@ namespace ProjectTemplate
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            #if (Swagger)
             services.AddSwaggerDocument();
+            #endif
+            #if (RateLimit)
             this.AddRateLimit(services);
+            #endif
             services.Configure<Configuration>(this.Configuration);
 
             services.AddHttpClient<GitHubService>();
@@ -53,10 +51,12 @@ namespace ProjectTemplate
                     .AllowAnyHeader();
             }));
 
+            #if (Quartz)
             services.AddSingleton<IJobFactory, CustomJobFactory>();
             services.AddHostedService<QuartzHostedService>();
 
             services.AddTransientBothTypes<IScheduledJob, HelloJob>();
+            #endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -65,15 +65,21 @@ namespace ProjectTemplate
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                #if (Swagger)
                 app.UseOpenApi();
                 app.UseSwaggerUi3();
+                #endif
             }
             app.UseStaticFiles();
 
-            app.UseMiddleware<LogMiddleware>()
-                .UseMiddleware<ManualTriggerMiddleware>();
+            app.UseMiddleware<LogMiddleware>();
+            #if (Quartz)
+            app.UseMiddleware<ManualTriggerMiddleware>();
+            #endif
 
+            #if (RateLimit)
             app.UseIpRateLimiting();
+            #endif
 
             app.UseCors("Default");
             app.UseRouting();
@@ -87,6 +93,7 @@ namespace ProjectTemplate
             DapperHelper.MakeDapperMapping("ProjectTemplate.Models");
         }
 
+        #if (RateLimit)
         private void AddRateLimit(IServiceCollection services)
         {
             // needed to load configuration from appsettings.json
@@ -113,5 +120,6 @@ namespace ProjectTemplate
             // configuration (resolvers, counter key builders)
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
         }
+        #endif
     }
 }
