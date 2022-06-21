@@ -34,6 +34,13 @@
             <param name="services"></param>
             <returns></returns>
         </member>
+        <member name="M:ProjectTemplate.Extensions.ServiceCollectionExtension.AddRabbitmq(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            添加 RabbitmqService
+            </summary>
+            <param name="services"></param>
+            <returns></returns>
+        </member>
         <member name="M:ProjectTemplate.Extensions.StringExtension.GZipDecompress(System.String)">
             <summary>
             GZip 解压
@@ -56,6 +63,11 @@
             <para>并在程序启动后手动调用此接口，传入相应命名空间</para>
             </summary>
             <param name="namspace"></param>
+        </member>
+        <member name="T:ProjectTemplate.Middlewares.ManualTriggerMiddleware">
+            <summary>
+            该中间件用于提供手动触发任务的入口
+            </summary>
         </member>
         <member name="F:ProjectTemplate.PollyPolicies._sqlExceptionErrorCodes">
             <summary>

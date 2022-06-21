@@ -6,34 +6,39 @@
     "name": "Base",
     "shortName": "base",
     "preferNameDirectory": true,
-    "symbols": {
-        "name": {
-            "type": "parameter",
-            "replaces": "ProjectTemplate",
-            "FileRename": "ProjectTemplate",
-            "isRequired": true
-        },
-        "Swagger": {
-            "type": "parameter", 
-            "dataType":"bool", 
-            "defaultValue": "true"
-        },
-        "RateLimit": {
-            "type": "parameter", 
-            "dataType":"bool", 
-            "defaultValue": "true"
-        },
-        "Polly": {
-            "type": "parameter", 
-            "dataType":"bool", 
-            "defaultValue": "true"
-        },
-        "Quartz": {
-            "type": "parameter", 
-            "dataType":"bool", 
-            "defaultValue": "true"
-        }
+  "symbols": {
+    "name": {
+      "type": "parameter",
+      "replaces": "ProjectTemplate",
+      "FileRename": "ProjectTemplate",
+      "isRequired": true
     },
+    "Swagger": {
+      "type": "parameter",
+      "dataType": "bool",
+      "defaultValue": "true"
+    },
+    "RateLimit": {
+      "type": "parameter",
+      "dataType": "bool",
+      "defaultValue": "true"
+    },
+    "Polly": {
+      "type": "parameter",
+      "dataType": "bool",
+      "defaultValue": "true"
+    },
+    "Quartz": {
+      "type": "parameter",
+      "dataType": "bool",
+      "defaultValue": "true"
+    },
+    "RabbitMQ": {
+      "type": "parameter",
+      "dataType": "bool",
+      "defaultValue": "true"
+    }
+  },
     "sources": [
         {
             "modifiers": [
@@ -58,14 +63,20 @@
                         "Extensions/DbConnectionExtension.cs"
                     ]
                 },
-                {
-                    "condition": "(!Quartz)",
-                    "exclude": [
-                        "Quartz/**",
-                        "Jobs/**",
-                        "Middlewares/ManualTriggerMiddleware.cs"
-                    ]
-                }
+              {
+                "condition": "(!Quartz)",
+                "exclude": [
+                  "Quartz/**",
+                  "Jobs/**",
+                  "Middlewares/ManualTriggerMiddleware.cs"
+                ]
+              },
+              {
+                "condition": "(!RabbitMQ)",
+                "exclude": [
+                  "Services/RabbitMQService.cs"
+                ]
+              }
             ]
         }
     ]

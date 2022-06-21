@@ -4,11 +4,21 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using ProjectTemplate.Extensions;
 using ProjectTemplate.Factories;
 using ProjectTemplate.Helpers;
 using ProjectTemplate.Middlewares;
 using ProjectTemplate.Services;
 using StackExchange.Redis;
+using Microsoft.AspNetCore.Http;
+#if (RateLimit)
+using AspNetCoreRateLimit;
+#endif
+#if (Quartz)
+using ProjectTemplate.Quartz;
+using Quartz.Spi;
+using ProjectTemplate.Jobs;
+#endif
 
 namespace ProjectTemplate
 {
@@ -36,6 +46,7 @@ namespace ProjectTemplate
             services.AddHttpClient<GitHubService>();
             
             services.AddSingleton<DbConnectionFactory>()
+                .AddSingleton<RedisConnectionFactory>()
                 .AddSingleton(_ => ConnectionMultiplexer.Connect(this.Configuration["Redis:ConnectionString"]))
                 .AddTransient(serviceProvider =>
                 {

@@ -1,4 +1,11 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using ProjectTemplate.Services;
+#if (RabbitMQ)
+using RabbitMQ.Client;
+#endif
+using System.Collections.Generic;
 
 namespace ProjectTemplate.Extensions
 {
@@ -21,5 +28,30 @@ namespace ProjectTemplate.Extensions
             services.AddTransient<TImplementation>();
             return services;
         }
+
+#if (RabbitMQ)
+        /// <summary>
+        /// 添加 RabbitmqService
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection AddRabbitmq(this IServiceCollection services)
+        {
+            return services.AddSingleton(serviceProvider =>
+            {
+                var config = serviceProvider.GetService<IConfiguration>();
+                var factory = new ConnectionFactory();
+                factory.UserName = config["RabbitMQ:UserName"];
+                factory.Password = config["RabbitMQ:Password"];
+                factory.VirtualHost = config["RabbitMQ:VirtualHost"];
+                var endpoints = new List<AmqpTcpEndpoint>();
+                config.GetValue<List<string>>("RabbitMQ:Hosts").ForEach(host =>
+                {
+                    endpoints.Add(new AmqpTcpEndpoint(host));
+                });
+                return new RabbitMQService(factory, endpoints);
+            });
+        }
+#endif
     }
 }

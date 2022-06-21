@@ -4,17 +4,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 #if (Polly)
 using ProjectTemplate.Extensions;
-using Polly;
 #endif
 
 namespace ProjectTemplate.Services
 {
     public class GitHubService
     {
-        #if (Polly)
-        private static ConcurrentDictionary<string, IAsyncPolicy<HttpResponseMessage>> _dictionary = 
-            new ConcurrentDictionary<string, IAsyncPolicy<HttpResponseMessage>>();
-        #endif
         public HttpClient Client { get; }
 
         public GitHubService(HttpClient client)
